@@ -41,3 +41,16 @@
   [name data-map data-set]
   `(let [searchersym# (searcher ~data-map)]
      (defn ~name [search#] ((searchersym# search#) ~data-set))))
+
+(def default-query
+  '{:find [?e]
+    :in [$ ?search]
+    :where []})
+
+(defmacro defsearch-datomic
+  ([fname data-map conn]
+   (defsearch-datomic fname data-map conn default-query))
+  ([fname data-map conn base-query]
+   (let [searchersym (gensym fname)]
+     `(do (def ~searchersym (searcher ~data-map))
+          (defn ~fname [search#] (d/q ((~searchersym search#) ~base-query) ~conn))))))
