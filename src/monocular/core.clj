@@ -39,8 +39,23 @@
 ;; Is this a good way to do this? It seems something like this is worth having.
 ;; It seems likely that most cases won't need to perform searches on more than
 ;; one set of data, and this makes that easy.
+;;
+;; todo: add doc string
 (defmacro defsearch
   [name data-map data-set]
   (let [searchersym (gensym name)]
     `(do (def ~searchersym (searcher ~data-map))
          (defn ~name [search#] ((~searchersym search#) ~data-set)))))
+
+(def default-query
+  '{:find [?e]
+    :in [$ ?search]
+    :where []})
+
+(defmacro defsearch-datomic
+  ([fname data-map conn]
+   (defsearch-datomic fname data-map conn default-query))
+  ([fname data-map conn base-query]
+   (let [searchersym (gensym fname)]
+     `(do (def ~searchersym (searcher ~data-map))
+          (defn ~fname [search#] (d/q ((~searchersym search#) ~base-query) ~conn))))))
