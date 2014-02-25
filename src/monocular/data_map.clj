@@ -13,6 +13,8 @@
 ;; grammar
 
 (defn apply-alt
+  "Returns grammar for cases where we may (but not always) have multiple
+  options, such as with aliases and keyword/magic-keyword meta rules"
   [grammar]
   (if (> (count grammar) 1)
       (apply alt grammar)
@@ -29,8 +31,7 @@
 
 ;; todo: is there a better way to do this?
 ;; Can we somehow avoid treating the suffix case and the suffixless case separately?
-(defn keywords->grammar
-  ([keywords]
+(defn keywords->grammar ([keywords]
    (fmap-with-key keyword->grammar keywords))
   ([keywords suffix]
    (fmap-with-key #(keyword->grammar %1 %2 suffix) keywords)))
@@ -61,12 +62,13 @@
 
 (defn magic-keyword->transform [kw] (fn [] (:fn kw)))
 
-(defn keywords->transforms
-  [keywords pre-transform-fn]
+(defn keywords->transforms [keywords pre-transform-fn]
   (if (empty? keywords) {}
       (fmap pre-transform-fn keywords)))
 
 (defn map->transforms
+  "Turns a monocular data-map into an instaparse transform map. Also does some
+  preprocessing on the default and keyword functions"
   [{:keys [magic-keywords keywords default]}]
   (merge {:default (fn [value] (partial default value))}
          (keywords->transforms magic-keywords magic-keyword->transform)
@@ -74,7 +76,7 @@
 
 
 (comment
-  (map->grammar 
+  (map->grammar
    {:magic-keywords {:one-seg {:alias ["one-segment-course"]
                                :fn :some-fn-would-go-here }
                      :gug {:alias ["guggenheim"]
