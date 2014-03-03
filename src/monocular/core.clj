@@ -1,8 +1,7 @@
 (ns monocular.core
   (:require [monocular.data-map :refer [map->grammar map->transforms]]
             [instaparse.core :as insta]
-            [instaparse.combinators :refer [ebnf]]
-            [datomic.api :as d]))
+            [instaparse.combinators :refer [ebnf]]))
 
 (def base-grammar
   (ebnf
@@ -22,6 +21,7 @@
   {:search comp})
 
 (defn search
+  "Parses a search string and runs the parse tree through the transfrom stage."
   [searcher string]
   (->> string
       (insta/parse (:parser searcher))
@@ -33,11 +33,14 @@
   (applyTo [searcher args] (apply search searcher args)))
 
 (defn searcher
+  "Create a searcher from the data map"
   [data-map]
   (Searcher. (insta/parser (merge base-grammar (map->grammar data-map)) :start :search)
              (merge base-transforms (map->transforms data-map))))
 
 (defmacro defsearch
+  "Create a searcher from the data map and def a function that uses the
+  searcher to search the data set"
   [name data-map data-set]
   `(let [searchersym# (searcher ~data-map)]
      (defn ~name [search#] ((searchersym# search#) ~data-set))))
