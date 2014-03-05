@@ -48,11 +48,10 @@
     :where []})
 
 (defmacro defsearch-datomic
-  ([fname data-map conn]
-   (defsearch-datomic fname data-map conn '[] default-query))
-  ([fname data-map conn rules]
-   (defsearch-datomic fname data-map conn rules default-query))
-  ([fname data-map conn rules base-query]
-   (let [searchersym (gensym fname)]
-     `(do (def ~searchersym (searcher ~data-map))
-          (defn ~fname [search#] (d/q ((~searchersym search#) ~base-query) ~conn ~rules))))))
+  ([name data-map conn]
+   (defsearch-datomic name data-map conn '[] default-query))
+  ([name data-map conn rules]
+   (defsearch-datomic name data-map conn rules default-query))
+  ([name data-map conn rules base-query]
+   `(let ~searchersym (searcher ~data-map)
+      ((defn ~name [search#] (d/q ((~searchersym search#) ~base-query) ~conn ~rules))))))
