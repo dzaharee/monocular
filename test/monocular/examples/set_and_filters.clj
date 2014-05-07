@@ -64,6 +64,7 @@
 (def doctor-searcher (monocular/searcher doctor-data-map))
 
 (comment
+
   ;; search for "Baker"
   (doctor-search "Baker")
 
@@ -81,5 +82,21 @@
 
   ;; get William Hartnell
   (doctor-search "doctor:\"William Hartnell\"")   ;; note that the actual search string here is 'doctor:"William Hartnell"'
+
+  (def example-grammar
+    "search = term (<whitespace> term)*
+     <term> = magic-keyword | !magic-keyword (keyword-value | default)
+     default = value
+     <value> = #'[^\"\\':\\s]+'
+     whitespace = #'\\s+'
+     <magic-keyword> = new-doctors | classic-doctors | main-doctors | alt-doctors
+     <keyword-value> = name | fullname | doctor
+     name = <'name'> <':'> value
+     fullname = <'fullname'> <':'> value
+     doctor = <'doctor'> <':'> value
+     new-doctors = <'new-doctors'>
+     classic-doctors = <'classic-doctors'>
+     main-doctors = <'main-doctors'>
+     alt-doctors = <'alt-doctors'>")
 
   )
