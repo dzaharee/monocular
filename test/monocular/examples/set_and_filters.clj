@@ -85,12 +85,17 @@
 
   (def example-grammar
     "search = term (<whitespace> term)*
-     <term> = magic-keyword | !magic-keyword (keyword-value | default)
      default = value
-     <value> = #'[^\"\\':\\s]+'
+     <value> = quoted-value | raw-value
+     <raw-value> = #'[^\":\\s]+'
+     <quoted-value> = <'\"'> #'[^\"]*' <'\"'>
      whitespace = #'\\s+'
+     
+     <term> = magic-keyword | !magic-keyword (keyword-value | default)
+     
      <magic-keyword> = new-doctors | classic-doctors | main-doctors | alt-doctors
      <keyword-value> = name | fullname | doctor
+     
      name = <'name'> <':'> value
      fullname = <'fullname'> <':'> value
      doctor = <'doctor'> <':'> value
